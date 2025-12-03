@@ -120,6 +120,8 @@ void printPath(pair<int,int> exitcell,
 // bool dfs(……) {
 //     // Your code here
 // }
+// dfs(ent_r, ent_c, maze, visited, parent_r, parent_c, exit_r, exit_c)
+// ^ dfs params: int, int, vector(?), vector, vector, int, int
 
 
 // ----------------------------------------------------------
