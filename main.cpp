@@ -117,52 +117,42 @@ void printPath(pair<int,int> exitcell,
 // STUDENTS IMPLEMENT DFS HERE
 // Add arguments, return type, and logic
 // ----------------------------------------------------------
+
+//use stack and recursively find path (think the stack is already in printPath, nvm)
+//need to implement bounds check
+
 bool dfs(int r, int c, const vector<vector<int>>& maze, vector<vector<bool>>& visited, vector<vector<int>>& parent_r,
 vector<vector<int>>& parent_c, int exit_r, int exit_c) {
     //need to go in one of the directions first before using this check
-    if (maze[r][c] == 1) {
-        //move in one of the other three directions to go around the wall
+    visited[r][c] = true; //mark the start first
+
+    //get new row and column combo to check
+    //just moves through all the possible directions
+    for (int i = 0; i < 4; i++) {
+        int nr = r + dc[i];
+        int nc = c + dc[i];
+
+        //skip to recursive call if a wall
+        if (maze[nr][nc] == 1) {
+            continue;
+        }
+        //skip to recursive call if already visited
+        if (visited[nr][nc] == 1) {
+            continue;
+        }
+        //helps keep track of where the DFS left off --> used to backtrack steps in printPath
+        parent_r[nr][nc] = r;
+        parent_c[nr][nc] = c;
+
+        //exit found
+        if (maze[r][c] == maze[exit_r][exit_c]) {
+            return true;
+        }
+        //can just do else{false}; (?) - stops when all cells that can be visited are visited (how to check?)
+
+        dfs(nr, nc, maze, visited, parent_r, parent_c, exit_r, exit_c);
     }
-    else {
-        //move down
-        parent_r[r + 1][c] = r;
-        parent_c[r + 1][c] = c;
-        //check if maze[r - 1][c], maze[r + 1][c], maze[r][c - 1], or maze[r][c + 1] == 1
-        //^but isn't that what parent_r and parent_c are supposed to do?
-        //would just try if (maze[r][c] == 1) each time?
-
-        //move up
-        parent_r[r - 1][c] = r;
-        parent_c[r - 1][c] = c;
-
-        //move right
-        parent_r[r][c + 1] = r;
-        parent_c[r][c + 1] = c;
-
-        //move left
-        parent_r[r][c - 1] = r;
-        parent_c[r][c - 1] = c;
-        //^might be doing these completely wrong
     }
-
-    //need to figure out how to use dr and dc, and how to check which direction the wall is in so only one of the other three
-    //directions are checked
-
-
-    //check for visited cells
-    if (visited[r][c] == false) {
-        visited[r][c] = true;
-    }
-    else {
-        //don't recount cell in path
-    }
-
-    //exit found
-    if (maze[r][c] == maze[exit_r][exit_c]) {
-        return true;
-    }
-    //can just do else{false}; (?) - stops when all cells that can be visited are visited (how to check?)
-}
 
 
 
