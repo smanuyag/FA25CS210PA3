@@ -121,8 +121,18 @@ void printPath(pair<int,int> exitcell,
 //use stack and recursively find path (think the stack is already in printPath, nvm)
 //need to implement bounds check
 
+
+
 bool dfs(int r, int c, const vector<vector<int>>& maze, vector<vector<bool>>& visited, vector<vector<int>>& parent_r,
 vector<vector<int>>& parent_c, int exit_r, int exit_c) {
+    //exit found
+    //needs to be checked first because the recursive call gets it into a new cell already (I think)
+    //can't do maze[nr][nc] == maze[exit_r][exit_c] because nr and nc aren't created yet, and
+    //nr and nc are passed to r and c in the recursive call
+    if (r == exit_r && c == exit_c) {
+        return true;
+    }
+
     //need to go in one of the directions first before using this check
     visited[r][c] = true; //mark the start first
 
@@ -132,23 +142,30 @@ vector<vector<int>>& parent_c, int exit_r, int exit_c) {
         int nr = r + dc[i];
         int nc = c + dc[i];
 
-        //skip to recursive call if a wall
+        //should skip over any out of bounds reaches, and go to next i
+        //not sure if this is the correct placement of the bounds check
+        if (nr < 0 || nr >= maze.size() || nc < 0 || nc >= maze.size()) {
+            continue;
+        }
+
+        //skip to next i
+        //think this is the right spot, have line for marking, but this will check for visited cells
+        if (visited[nr][nc] == true) {
+            continue;
+        }
+        //need an else(?) - don't think so because the beginning of the recursion will mark the spots
+
+        //skip to next i
         if (maze[nr][nc] == 1) {
             continue;
         }
-        //skip to recursive call if already visited
+        //skip to next i
         if (visited[nr][nc] == 1) {
             continue;
         }
         //helps keep track of where the DFS left off --> used to backtrack steps in printPath
         parent_r[nr][nc] = r;
         parent_c[nr][nc] = c;
-
-        //exit found
-        if (maze[r][c] == maze[exit_r][exit_c]) {
-            return true;
-        }
-        //can just do else{false}; (?) - stops when all cells that can be visited are visited (how to check?)
 
         dfs(nr, nc, maze, visited, parent_r, parent_c, exit_r, exit_c);
     }
