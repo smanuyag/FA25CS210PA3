@@ -126,9 +126,11 @@ void printPath(pair<int,int> exitcell,
 bool dfs(int r, int c, const vector<vector<int>>& maze, vector<vector<bool>>& visited, vector<vector<int>>& parent_r,
 vector<vector<int>>& parent_c, int exit_r, int exit_c) {
     //exit found
-    //needs to be checked first because the recursive call gets it into a new cell already (I think)
-    //can't do maze[nr][nc] == maze[exit_r][exit_c] because nr and nc aren't created yet, and
-    //nr and nc are passed to r and c in the recursive call
+    //needs to be checked first because the recursive call steps into a new cell (I think)
+    //and that cell could be in the exit already
+    //can't do maze[nr][nc] == maze[exit_r][exit_c] because nr and nc aren't created until the loop
+
+    //base case (exit found)
     if (r == exit_r && c == exit_c) {
         return true;
     }
@@ -139,36 +141,41 @@ vector<vector<int>>& parent_c, int exit_r, int exit_c) {
     //get new row and column combo to check
     //just moves through all the possible directions
     for (int i = 0; i < 4; i++) {
-        int nr = r + dc[i];
+        int nr = r + dr[i];
         int nc = c + dc[i];
 
-        //should skip over any out of bounds reaches, and go to next i
-        //not sure if this is the correct placement of the bounds check
-        if (nr < 0 || nr >= maze.size() || nc < 0 || nc >= maze.size()) {
+        //should skip over any out of bounds reaches, and go to next i in loop
+        //have to use maze.size() and maze[0].size(), not just maze.size() because
+        //the number of rows and columns might not be equal, but each row will be the
+        //same length, so maze[0] gets that
+        if (nr < 0 || nr >= maze.size() || nc < 0 || nc >= maze[0].size()) {
+            cout<<"cell OOB"<<endl;
             continue;
         }
 
         //skip to next i
         //think this is the right spot, have line for marking, but this will check for visited cells
         if (visited[nr][nc] == true) {
+            cout<<"already visited cell"<<endl;
             continue;
         }
-        //need an else(?) - don't think so because the beginning of the recursion will mark the spots
 
         //skip to next i
         if (maze[nr][nc] == 1) {
+            cout<<"hit a wall, oops"<<endl;
             continue;
         }
-        //skip to next i
-        if (visited[nr][nc] == 1) {
-            continue;
-        }
+
         //helps keep track of where the DFS left off --> used to backtrack steps in printPath
         parent_r[nr][nc] = r;
         parent_c[nr][nc] = c;
 
-        dfs(nr, nc, maze, visited, parent_r, parent_c, exit_r, exit_c);
+        //if the exit is found, this conditional will be true, and return the proper bool (true)
+        if (dfs(nr, nc, maze, visited, parent_r, parent_c, exit_r, exit_c)) {
+            return true;
+        }
     }
+        return false;
     }
 
 
