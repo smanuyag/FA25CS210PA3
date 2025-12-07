@@ -118,67 +118,60 @@ void printPath(pair<int,int> exitcell,
 // Add arguments, return type, and logic
 // ----------------------------------------------------------
 
-//use stack and recursively find path (think the stack is already in printPath, nvm)
-//need to implement bounds check
-
-
-
 bool dfs(int r, int c, const vector<vector<int>>& maze, vector<vector<bool>>& visited, vector<vector<int>>& parent_r,
 vector<vector<int>>& parent_c, int exit_r, int exit_c) {
-    //exit found
+
+    //base case (exit found)
     //needs to be checked first because the recursive call steps into a new cell (I think)
     //and that cell could be in the exit already
     //can't do maze[nr][nc] == maze[exit_r][exit_c] because nr and nc aren't created until the loop
-
-    //base case (exit found)
     if (r == exit_r && c == exit_c) {
         return true;
     }
 
-    //need to go in one of the directions first before using this check
-    visited[r][c] = true; //mark the start first
+    visited[r][c] = true; //marks the cells in general, and also marks the starting cell first
 
     //get new row and column combo to check
-    //just moves through all the possible directions
+    //moves through all the possible directions, and updates nr and nc accordingly based on
+    //values for each move in the dr and dc arrays
     for (int i = 0; i < 4; i++) {
         int nr = r + dr[i];
         int nc = c + dc[i];
 
-        //should skip over any out of bounds reaches, and go to next i in loop
-        //have to use maze.size() and maze[0].size(), not just maze.size() because
-        //the number of rows and columns might not be equal, but each row will be the
-        //same length, so maze[0] gets that
+        //out of bounds check
         if (nr < 0 || nr >= maze.size() || nc < 0 || nc >= maze[0].size()) {
-            cout<<"cell OOB"<<endl;
-            continue;
+            continue; //do nothing and go to next i/try another direction
         }
+        //^have to use maze.size() and maze[0].size(), not just maze.size() because
+        //the number of rows and columns might not be equal, but each row will always be the
+        //same length, so maze[0] gets that columns bound
 
-        //skip to next i
-        //think this is the right spot, have line for marking, but this will check for visited cells
+        //already have a line for marking, but this will check for visited cells
         if (visited[nr][nc] == true) {
-            cout<<"already visited cell"<<endl;
-            continue;
+            continue;  //do nothing and go to next i/try another direction
         }
 
-        //skip to next i
+        //hit a wall
         if (maze[nr][nc] == 1) {
-            cout<<"hit a wall, oops"<<endl;
-            continue;
+            continue; //do nothing and go to next i/try another direction
         }
 
-        //helps keep track of where the DFS left off --> used to backtrack steps in printPath
+        //helps keep track of how DFS reached a cell --> used to backtrack from exit to entrance
         parent_r[nr][nc] = r;
         parent_c[nr][nc] = c;
 
-        //if the exit is found, this conditional will be true, and return the proper bool (true)
+        //if the exit is found during the recursive call, this conditional will be true, and return true
+        //which is passed to the dfs call stack
         if (dfs(nr, nc, maze, visited, parent_r, parent_c, exit_r, exit_c)) {
             return true;
         }
+        //can't just call dfs(...) because then there's no check if the recursive dfs call
+        //found the exit, and while there's an exit check, there's no check that the dfs call
+        //itself returned true
     }
-        return false;
+        return false; //returns false when the cell is surrounded by walls/after going
+                      //up, down, left, and right only a wall or out of bounds was reached
     }
-
-
 
 // ----------------------------------------------------------
 // MAIN PROGRAM (students add DFS calls and logic)
@@ -217,17 +210,17 @@ int main() {
     // STUDENT WORK:
     // Call your DFS, track visited, and fill parent_r and parent_c
     // ------------------------------------------------------
-    // bool found = dfs(ent_r, ent_c, maze, visited, parent_r, parent_c, exit_r, exit_c);
+       bool found = dfs(ent_r, ent_c, maze, visited, parent_r, parent_c, exit_r, exit_c);
 
     // ------------------------------------------------------
     // STUDENT WORK:
     // If found, print the path
     // ------------------------------------------------------
-    // if (found) {
-    //     printPath(exitcell, parent_r, parent_c, ent_r, ent_c);
-    // } else {
-    //     cout << "\nNo path exists.\n";
-    // }
+       if (found) {
+           printPath(exitcell, parent_r, parent_c, ent_r, ent_c);
+       } else {
+           cout << "\nNo path exists.\n";
+       }
 
     return 0;
 }
